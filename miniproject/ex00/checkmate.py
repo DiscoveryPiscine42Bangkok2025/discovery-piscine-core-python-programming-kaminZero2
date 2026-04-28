@@ -5,15 +5,14 @@ def checkmate(board):
     grid = [list(line) for line in lines]
 # แปลงกระดานจากรูปแบบ String เป็น List of Lists เพื่อให้ง่ายต่อการเข้าถึงแต่ละช่อง
 
-    kx, ky = -1, -1
+    kings = []
     for r in range(size):
         for c in range(size):
             if grid[r][c] == 'K':
-                kx, ky = r, c
-                break
-# ค้นหาตำแหน่งของคิง (K) ในกระดาน หากพบจะเก็บตำแหน่งไว้ในตัวแปร kx และ ky
+                kings.append((r, c))
+# ค้นหาตำแหน่งของคิง (K) ในกระดานทั้งหมด
 
-    if kx == -1:
+    if not kings:
         print("No King found on the board.")
         return
 # หากไม่พบคิงในกระดาน แสดงว่าไม่มีคิงอยู่เลย จึงไม่สามารถเป็น Check mate ได้(Error case)
@@ -25,40 +24,42 @@ def checkmate(board):
     }
 # ตรวจสอบการเคลื่อนที่ของเรือ (R), บิชอป (B) และควีน (Q) ที่สามารถโจมตีคิงได้
 
-    for piece_type, move_dirs in directions.items():
-        for dr, dc in move_dirs:
-            r, c = kx + dr, ky + dc
-            while 0 <= r < size and 0 <= c < size:
-                char = grid[r][c]
-                if char != '.':
-                    if char == piece_type or char == 'Q':
-                        print("Success")
-                        return
-                    break
-                r += dr
-                c += dc
-                # เดินต่อไปในทิศทางนั้นจนกว่าจะเจอหมากรุกหรือออกนอกกระดาน
-                           
-        if 0 <= r < size and 0 <= c < size:
-            if grid[r][c] == 'P':
-                print("Success")
-                return
-    # ตรวจสอบการเคลื่อนที่ของเบี้ย (P) ที่สามารถโจมตีคิงได้ (สมมติว่าเบี้ยสามารถโจมตีเฉพาะทิศทางขวาและซ้ายด้านหน้า)
-
     knight_moves = [
         (-2, -1), (-2, 1), (2, -1), (2, 1),
         (-1, -2), (-1, 2), (1, -2), (1, 2)
     ]
-    # ตรวจสอบการเคลื่อนที่ของม้า (N) ที่สามารถโจมตีคิงได้ โดยตรวจสอบตำแหน่งที่ม้าสามารถเคลื่อนที่ไปได้จากตำแหน่งของคิง
+# ตรวจสอบการเคลื่อนที่ของม้า (N) ที่สามารถโจมตีคิงได้ โดยตรวจสอบตำแหน่งที่ม้าสามารถเคลื่อนที่ไปได้จากตำแหน่งของคิง
 
-    for dr, dc in knight_moves:
-        r, c = kx + dr, ky + dc
-        if 0 <= r < size and 0 <= c < size:
-            if grid[r][c] == 'N': # สมมติว่า 'N' คือ Knight
+    for kx, ky in kings:
+        # ตรวจสอบสำหรับแต่ละคิง
+        for piece_type, move_dirs in directions.items():
+            for dr, dc in move_dirs:
+                r, c = kx + dr, ky + dc
+                while 0 <= r < size and 0 <= c < size:
+                    char = grid[r][c]
+                    if char != '.':
+                        if char == piece_type or char == 'Q':
+                            print("Success")
+                            return
+                        break
+                    r += dr
+                    c += dc
+        # ตรวจสอบเบี้ย (P) ที่โจมตีแบบทแยงมุมด้านหน้า (สมมติว่าคิงอยู่ด้านบน)
+
+        for dc in [-1, 1]:
+            r, c = kx + 1, ky + dc
+            if 0 <= r < size and 0 <= c < size and grid[r][c] == 'P':
+                print("Success")
+                return
+        # ตรวจสอบม้า (N)
+        
+        for dr, dc in knight_moves:
+            r, c = kx + dr, ky + dc
+            if 0 <= r < size and 0 <= c < size and grid[r][c] == 'N':
                 print("Success")
                 return
     print("Fail")
-# หากไม่มีหมากรุกใดสามารถโจมตีคิงได้ แสดงว่าไม่เป็น Check mate ดังนั้นผลลัพธ์จะเป็น "Fail"
+# หากไม่มีหมากรุกใดสามารถโจมตีคิงใดคิงหนึ่งได้ แสดงว่าไม่เป็น Check mate ดังนั้นผลลัพธ์จะเป็น "Fail"
 
 
 # [ ตาราง และ พิกัด ]
